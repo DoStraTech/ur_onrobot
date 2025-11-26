@@ -1,0 +1,32 @@
+# ROS 2
+install/
+build/
+log/
+*.egg-info/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+dist/
+*.manifest
+*.spec
+pip-log.txt
+pip-delete-this-directory.txt
+.pyc
+.pyo
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
