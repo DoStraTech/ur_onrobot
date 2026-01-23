@@ -15,6 +15,7 @@ setup(
         ("share/" + package_name + "/urdf", glob("urdf/*.xacro")),
         ("share/" + package_name + "/meshes", glob("meshes/*.stl")),
         ("share/" + package_name + "/rviz", glob("rviz/*.rviz")),
+        ("share/" + package_name + "/config/ur10e", glob("config/ur10e/*")),
     ],
     install_requires=[
         "setuptools",

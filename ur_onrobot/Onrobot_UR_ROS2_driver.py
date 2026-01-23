@@ -101,7 +101,7 @@ class GripperNode(Node):
         
         if self.g.family in ("FG", "RG"):
             self.declare_parameter("preset.open_width", 60.0)
-            self.declare_parameter("preset.close_width", 10.0)
+            self.declare_parameter("preset.close_width", 0.0)
             self.declare_parameter("preset.default_force", 30.0)
             
             self.srv_toggle = self.create_service(

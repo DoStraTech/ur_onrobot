@@ -61,14 +61,14 @@
         <inertia ixx="1.2e-05" iyy="1e-05" izz="4e-06" ixy="-0.0" iyz="0.0" ixz="-2e-06"/>
       </inertial>
       <visual>
-        <origin xyz="-0.032239 0.029494 -0.12005" rpy="0 0 0"/>
+        <origin xyz="0.054361 -0.029494 -0.12005" rpy="0 0 0"/>
         <geometry>
           <mesh filename="package://ur_onrobot/meshes/left_finger_link.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
       </visual>
       <collision name="left_finger_collision">
-        <origin xyz="-0.032239 0.029494 -0.12005" rpy="0 0 0"/>
+        <origin xyz="0.054361 -0.029494 -0.12005" rpy="0 0 0"/>
         <geometry>
           <mesh filename="package://ur_onrobot/meshes/left_finger_link.stl" scale="0.001 0.001 0.001"/>
         </geometry>
@@ -76,10 +76,10 @@
     </link>
 
     <joint name="${prefix}left_finger_joint" type="prismatic">
-      <origin xyz="0.032239 -0.029494 0.12005" rpy="0 0 0"/>
+      <origin xyz="-0.054361 0.029494 0.12005" rpy="0 0 0"/>
       <parent link="${prefix}base_link"/>
       <child link="${prefix}left_finger_link"/>
-      <axis xyz="-1.0 0.0 0.0"/>
+      <axis xyz="1.0 0.0 0.0"/>
       <!-- FG14: 0-140mm stroke = 0.070m per finger (vs FG7: 0.019m) -->
       <limit lower="0.0" upper="0.070" effort="300" velocity="0.45"/>
     </joint>
@@ -88,7 +88,7 @@
       <origin xyz="-0.054361 -0.029494 0.12005" rpy="0 0 0"/>
       <parent link="${prefix}base_link"/>
       <child link="${prefix}right_finger_link"/>
-      <axis xyz="1.0 0.0 0.0"/>
+      <axis xyz="-1.0 0.0 0.0"/>
       <!-- Symmetric movement with mimic joint -->
       <limit lower="-0.070" upper="0.070" effort="300" velocity="0.45"/>
       <mimic joint="${prefix}left_finger_joint" multiplier="1.0"/>
@@ -124,14 +124,14 @@
         <inertia ixx="1.2e-05" iyy="1e-05" izz="4e-06" ixy="-0.0" iyz="0.0" ixz="-2e-06"/>
       </inertial>
       <visual>
-        <origin xyz="0.054361 0.029494 -0.12005" rpy="0 0 0"/>
+        <origin xyz="0.04 0.029494 -0.1199" rpy="0 0 0"/>
         <geometry>
           <mesh filename="package://ur_onrobot/meshes/right_finger_link.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
       </visual>
       <collision>
-        <origin xyz="0.054361 0.029494 -0.12005" rpy="0 0 0"/>
+        <origin xyz="0.04 0.029494 -0.1199" rpy="0 0 0"/>
         <geometry>
           <mesh filename="package://ur_onrobot/meshes/right_finger_link.stl" scale="0.001 0.001 0.001"/>
         </geometry>
@@ -145,14 +145,14 @@
         <inertia ixx="1.2e-05" iyy="1e-05" izz="4e-06" ixy="-0.0" iyz="-0.0" ixz="2e-06"/>
       </inertial>
       <visual>
-        <origin xyz="-0.032239 0.029494 -0.12005" rpy="0 0 0"/>
+        <origin xyz="-0.04 0.029494 -0.1199" rpy="0 0 0"/>
         <geometry>
           <mesh filename="package://ur_onrobot/meshes/left_finger_link.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
       </visual>
       <collision>
-        <origin xyz="-0.032239 0.029494 -0.12005" rpy="0 0 0"/>
+        <origin xyz="-0.04 0.029494 -0.1199" rpy="0 0 0"/>
         <geometry>
           <mesh filename="package://ur_onrobot/meshes/left_finger_link.stl" scale="0.001 0.001 0.001"/>
         </geometry>
@@ -160,7 +160,8 @@
     </link>
 
     <joint name="${prefix}left_finger_joint" type="prismatic">
-      <origin xyz="0.032239 -0.029494 0.12005" rpy="0 0 0"/>
+      <origin xyz="0 -0.029494 0.12005" rpy="0 0 0"/>
+      <!-- <origin xyz="0.032239 -0.029494 0.12005" rpy="0 0 0"/> -->
       <parent link="${prefix}base_link"/>
       <child link="${prefix}left_finger_link"/>
       <axis xyz="-1.0 0.0 0.0"/>
@@ -168,7 +169,9 @@
     </joint>
     
     <joint name="${prefix}right_finger_joint" type="prismatic">
-      <origin xyz="-0.054361 -0.029494 0.12005" rpy="0 0 0"/>
+      <origin xyz="0 -0.029494 0.12005" rpy="0 0 0"/>
+      <!-- good -0.02 -->
+      <!-- <origin xyz="-0.054361 -0.029494 0.12005" rpy="0 0 0"/> -->
       <parent link="${prefix}base_link"/>
       <child link="${prefix}right_finger_link"/>
       <axis xyz="1.0 0.0 0.0"/>
@@ -178,12 +181,5 @@
 
   </xacro:if>
 </xacro:macro>
-
-<!-- Default parameters for standalone visualization -->
-<xacro:arg name="prefix" default=""/>
-<xacro:arg name="finger_configuration" default="outwards"/>
-
-<!-- Instantiate the gripper by default for standalone visualization -->
-<xacro:onrobot_2fg14_gripper prefix="$(arg prefix)" finger_configuration="$(arg finger_configuration)"/>
 
 </robot>

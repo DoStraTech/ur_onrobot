@@ -27,8 +27,8 @@ def generate_launch_description():
     # Get package share directory
     pkg_share = FindPackageShare("ur_onrobot")
     
-    # Path to xacro file
-    xacro_file = PathJoinSubstitution([pkg_share, "urdf", "onrobot_2fg14.xacro"])
+    # Path to standalone xacro file
+    xacro_file = PathJoinSubstitution([pkg_share, "urdf", "onrobot_2fg14_standalone.xacro"])
     
     # Generate robot description from xacro
     robot_description = ParameterValue(
