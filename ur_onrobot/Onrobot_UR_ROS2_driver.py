@@ -34,6 +34,7 @@ from rclpy.node import Node
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from std_msgs.msg import String, Bool, Int32, Float32
+from std_srvs.srv import SetBool, Trigger
 from control_msgs.action import GripperCommand
 from .UR_onrobot import make_universal, snapshot
 from nit_utils.helpers import unique_node
@@ -94,6 +95,22 @@ class GripperNode(Node):
             cancel_callback=lambda gh: CancelResponse.ACCEPT,
             goal_callback=lambda gr: GoalResponse.ACCEPT
         )
+
+        # Preset state tracking and services (FG/RG only)
+        self.preset_state = None  # "open", "close", or None
+        
+        if self.g.family in ("FG", "RG"):
+            self.declare_parameter("preset.open_width", 60.0)
+            self.declare_parameter("preset.close_width", 10.0)
+            self.declare_parameter("preset.default_force", 30.0)
+            
+            self.srv_toggle = self.create_service(
+                Trigger, "~/preset/toggle", self._preset_toggle_cb
+            )
+            self.srv_set_state = self.create_service(
+                SetBool, "~/preset/set_state", self._preset_set_state_cb
+            )
+            self.get_logger().info("Preset services enabled (FG/RG)")
 
     def _tick_status(self):
         try:
@@ -181,6 +198,95 @@ class GripperNode(Node):
                 return res
 
             time.sleep(0.02)
+
+    def _preset_toggle_cb(self, request, response):
+        """Toggle between open and close presets."""
+        if self.g.family not in ("FG", "RG"):
+            response.success = False
+            response.message = f"Presets not supported for {self.g.family}"
+            return response
+        
+        # Determine target state
+        target_state = "close" if self.preset_state == "open" else "open"
+        
+        # Get parameters
+        if target_state == "open":
+            width = float(self.get_parameter("preset.open_width").value)
+        else:
+            width = float(self.get_parameter("preset.close_width").value)
+        
+        force = float(self.get_parameter("preset.default_force").value)
+        speed = self.speed_default if self.g.family == "FG" else 50
+        
+        self.get_logger().info(f"Preset toggle: {self.preset_state} → {target_state} (width={width:.1f}mm)")
+        
+        # Send command (will queue if busy)
+        try:
+            self.g.set_width_force(width, force, speed)
+            
+            # Wait for completion
+            timeout = self.timeout
+            start = time.time()
+            while (time.time() - start) < timeout:
+                if not self.g.is_busy():
+                    break
+                time.sleep(0.05)
+            
+            # Update state
+            self.preset_state = target_state
+            response.success = True
+            response.message = f"Preset: {target_state} (width={width:.1f}mm)"
+            
+        except Exception as e:
+            self.get_logger().error(f"Preset toggle failed: {e}")
+            response.success = False
+            response.message = f"Error: {e}"
+        
+        return response
+    
+    def _preset_set_state_cb(self, request, response):
+        """Set explicit preset state: True=open, False=close."""
+        if self.g.family not in ("FG", "RG"):
+            response.success = False
+            response.message = f"Presets not supported for {self.g.family}"
+            return response
+        
+        target_state = "open" if request.data else "close"
+        
+        # Get parameters
+        if target_state == "open":
+            width = float(self.get_parameter("preset.open_width").value)
+        else:
+            width = float(self.get_parameter("preset.close_width").value)
+        
+        force = float(self.get_parameter("preset.default_force").value)
+        speed = self.speed_default if self.g.family == "FG" else 50
+        
+        self.get_logger().info(f"Preset set: {target_state} (width={width:.1f}mm)")
+        
+        # Send command (will queue if busy)
+        try:
+            self.g.set_width_force(width, force, speed)
+            
+            # Wait for completion
+            timeout = self.timeout
+            start = time.time()
+            while (time.time() - start) < timeout:
+                if not self.g.is_busy():
+                    break
+                time.sleep(0.05)
+            
+            # Update state
+            self.preset_state = target_state
+            response.success = True
+            response.message = f"Preset: {target_state} (width={width:.1f}mm)"
+            
+        except Exception as e:
+            self.get_logger().error(f"Preset set failed: {e}")
+            response.success = False
+            response.message = f"Error: {e}"
+        
+        return response
 
 def main():
     rclpy.init()
