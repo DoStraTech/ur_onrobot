@@ -25,12 +25,6 @@
         </geometry>
         <material name="silver"/>
       </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://ur_onrobot/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
-        </geometry>
-      </collision>
     </link>
 
     <link name="${prefix}right_finger_link">
@@ -46,12 +40,6 @@
         </geometry>
         <material name="silver"/>
       </visual>
-      <collision name="right_finger_collision">
-        <origin xyz="0.054361 0.029494 -0.12005" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://ur_onrobot/meshes/right_finger_link.stl" scale="0.001 0.001 0.001"/>
-        </geometry>
-      </collision>
     </link>
 
     <link name="${prefix}left_finger_link">
@@ -67,12 +55,6 @@
         </geometry>
         <material name="silver"/>
       </visual>
-      <collision name="left_finger_collision">
-        <origin xyz="0.054361 -0.029494 -0.12005" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://ur_onrobot/meshes/left_finger_link.stl" scale="0.001 0.001 0.001"/>
-        </geometry>
-      </collision>
     </link>
 
     <joint name="${prefix}left_finger_joint" type="prismatic">
@@ -109,12 +91,6 @@
         </geometry>
         <material name="silver"/>
       </visual>
-      <collision>
-        <origin xyz="0 0 0" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://ur_onrobot/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
-        </geometry>
-      </collision>
     </link>
 
     <link name="${prefix}right_finger_link">
@@ -124,18 +100,12 @@
         <inertia ixx="1.2e-05" iyy="1e-05" izz="4e-06" ixy="-0.0" iyz="0.0" ixz="-2e-06"/>
       </inertial>
       <visual>
-        <origin xyz="0.04 0.029494 -0.1199" rpy="0 0 0"/>
+        <origin xyz="0.04 0.029494 -0.119" rpy="0 0 0"/>
         <geometry>
           <mesh filename="package://ur_onrobot/meshes/right_finger_link.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
       </visual>
-      <collision>
-        <origin xyz="0.04 0.029494 -0.1199" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://ur_onrobot/meshes/right_finger_link.stl" scale="0.001 0.001 0.001"/>
-        </geometry>
-      </collision>
     </link>
 
     <link name="${prefix}left_finger_link">
@@ -145,18 +115,12 @@
         <inertia ixx="1.2e-05" iyy="1e-05" izz="4e-06" ixy="-0.0" iyz="-0.0" ixz="2e-06"/>
       </inertial>
       <visual>
-        <origin xyz="-0.04 0.029494 -0.1199" rpy="0 0 0"/>
+        <origin xyz="-0.04 0.029494 -0.119" rpy="0 0 0"/>
         <geometry>
           <mesh filename="package://ur_onrobot/meshes/left_finger_link.stl" scale="0.001 0.001 0.001"/>
         </geometry>
         <material name="silver"/>
       </visual>
-      <collision>
-        <origin xyz="-0.04 0.029494 -0.1199" rpy="0 0 0"/>
-        <geometry>
-          <mesh filename="package://ur_onrobot/meshes/left_finger_link.stl" scale="0.001 0.001 0.001"/>
-        </geometry>
-      </collision>
     </link>
 
     <joint name="${prefix}left_finger_joint" type="prismatic">

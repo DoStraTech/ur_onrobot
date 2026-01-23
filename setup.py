@@ -13,6 +13,7 @@ setup(
         ("share/" + package_name, ["package.xml"]),
         ("share/" + package_name + "/launch", glob("launch/*.launch.py")),
         ("share/" + package_name + "/urdf", glob("urdf/*.xacro")),
+        ("share/" + package_name + "/srdf", glob("srdf/*.srdf.xacro")),
         ("share/" + package_name + "/meshes", glob("meshes/*.stl")),
         ("share/" + package_name + "/rviz", glob("rviz/*.rviz")),
         ("share/" + package_name + "/config/ur10e", glob("config/ur10e/*")),

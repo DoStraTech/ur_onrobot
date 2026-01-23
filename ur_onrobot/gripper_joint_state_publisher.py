@@ -8,6 +8,7 @@ corresponding joint states for visualization in RViz.
 
 import rclpy
 from rclpy.node import Node
+from rclpy.qos import QoSProfile, QoSDurabilityPolicy, QoSReliabilityPolicy
 from std_msgs.msg import Float32
 from sensor_msgs.msg import JointState
 
@@ -44,12 +45,24 @@ class GripperJointStatePublisher(Node):
             10
         )
 
-        # Publisher for joint states
+        # Publisher for joint states with QoS matching joint_state_broadcaster
+        # Use RELIABLE (works with both RELIABLE and BEST_EFFORT subscribers)
+        # Use VOLATILE (most subscribers expect this, not TRANSIENT_LOCAL)
+        qos_profile = QoSProfile(
+            depth=10,
+            durability=QoSDurabilityPolicy.VOLATILE,
+            reliability=QoSReliabilityPolicy.RELIABLE
+        )
         self.joint_state_pub = self.create_publisher(
             JointState,
             "/joint_states",
-            10
+            qos_profile
         )
+
+        # Publish initial state immediately so MoveIt knows these joints exist
+        # Set flag to true so initial publish works
+        self.width_received = True
+        self.publish_joint_states()
 
         # Timer for publishing joint states at fixed rate
         self.timer = self.create_timer(
