@@ -34,6 +34,7 @@ setup(
             "onrobot-cli = ur_onrobot.UR_onrobot:main",
             "onrobot-ros2 = ur_onrobot.Onrobot_UR_ROS2_driver:main",
             "gripper-joint-state-publisher = ur_onrobot.gripper_joint_state_publisher:main",
+            "gripper-simulator = ur_onrobot.gripper_simulator:main",
         ],
     },
 )
