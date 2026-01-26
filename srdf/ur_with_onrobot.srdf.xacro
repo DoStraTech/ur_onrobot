@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<robot xmlns:xacro="http://wiki.ros.org/xacro" name="ur10e">
+  
+  <!-- Include base UR SRDF macro -->
+  <xacro:include filename="$(find ur_moveit_config)/srdf/ur_macro.srdf.xacro"/>
+  
+  <!-- Instantiate UR SRDF -->
+  <xacro:ur_srdf name="ur10e" prefix=""/>
+  
+  <!-- Mark gripper joints as passive - they're controlled by gripper driver, not MoveIt -->
+  <passive_joint name="gripper_left_finger_joint"/>
+  <passive_joint name="gripper_right_finger_joint"/>
+  
+  <!-- Disable collisions between gripper components -->
+  <disable_collisions link1="gripper_base_link" link2="gripper_left_finger_link" reason="Adjacent"/>
+  <disable_collisions link1="gripper_base_link" link2="gripper_right_finger_link" reason="Adjacent"/>
+  <disable_collisions link1="gripper_left_finger_link" link2="gripper_right_finger_link" reason="Never"/>
+  
+  <!-- Disable collision between gripper and robot tool flange -->
+  <disable_collisions link1="tool0" link2="gripper_base_link" reason="Adjacent"/>
+  <disable_collisions link1="tool0" link2="gripper_left_finger_link" reason="Never"/>
+  <disable_collisions link1="tool0" link2="gripper_right_finger_link" reason="Never"/>
+  <disable_collisions link1="wrist_3_link" link2="gripper_base_link" reason="Never"/>
+  <disable_collisions link1="wrist_3_link" link2="gripper_left_finger_link" reason="Never"/>
+  <disable_collisions link1="wrist_3_link" link2="gripper_right_finger_link" reason="Never"/>
+  
+</robot>

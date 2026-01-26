@@ -1,0 +1,17 @@
+<?xml version="1.0" ?>
+<robot name="onrobot_2fg14_standalone" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- Arguments for standalone visualization -->
+  <xacro:arg name="prefix" default=""/>
+  <xacro:arg name="finger_configuration" default="outwards"/>
+
+  <!-- Include gripper macro -->
+  <xacro:include filename="$(find ur_onrobot)/urdf/onrobot_2fg14.xacro"/>
+
+  <!-- Instantiate gripper for standalone visualization -->
+  <xacro:onrobot_2fg14_gripper 
+    prefix="$(arg prefix)" 
+    finger_configuration="$(arg finger_configuration)"
+  />
+
+</robot>
