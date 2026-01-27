@@ -154,30 +154,14 @@ class GripperSimulator(Node):
         
         self.get_logger().info(f"Gripper command received: {self.target_width_mm:.1f} mm")
         
-        # Wait for gripper to reach target
-        feedback_msg = GripperCommand.Feedback()
-        while self.current_width_mm != self.target_width_mm:
-            if goal_handle.is_cancel_requested:
-                goal_handle.canceled()
-                self.get_logger().info("Gripper command canceled")
-                return GripperCommand.Result()
-            
-            # Publish feedback
-            feedback_msg.position = self.current_width_mm / 1000.0  # Convert to meters
-            feedback_msg.effort = 0.0
-            feedback_msg.stalled = False
-            feedback_msg.reached_goal = False
-            goal_handle.publish_feedback(feedback_msg)            
-            time.sleep(0.05)
-        
-        # Success
+        # Immediately accept and return success - simulation runs in background
+        # The _update_simulation timer handles actual movement
         goal_handle.succeed()
         result = GripperCommand.Result()
-        result.position = self.current_width_mm / 1000.0
+        result.position = self.target_width_mm / 1000.0
         result.effort = 0.0
         result.stalled = False
-        result.reached_goal = True        
-        self.get_logger().info(f"Gripper command completed: {self.current_width_mm:.1f} mm")
+        result.reached_goal = True
         return result
 
     def _preset_toggle_cb(self, request, response):
