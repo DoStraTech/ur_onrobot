@@ -109,6 +109,26 @@
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
 
+  <!-- add camera -->
+  <link name="camera_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.015 0.015"/>
+      </geometry>
+      <material name="dark_silver">
+        <color rgba="0.55 0.55 0.55 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Joint to attach camera to world (adjust parent/origin as needed) -->
+  <joint name="camera_joint" type="fixed">
+    <parent link="$(arg tf_prefix)tool0"/>
+    <child link="camera_link"/>
+    <origin xyz="0.0 -0.04 0.11" rpy="0 0 0"/>
+  </joint>
+
   <!-- Instantiate gripper (will create gripper_prefix + base_link, left_finger_link, right_finger_link) -->
   <xacro:onrobot_2fg14_gripper 
     prefix="$(arg gripper_prefix)" 
