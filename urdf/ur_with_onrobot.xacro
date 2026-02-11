@@ -2,7 +2,8 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="ur10e">
 
   <!-- Import standard UR xacro -->
-  <xacro:arg name="robot_ip" default="192.168.178.5"/>
+  <!-- Change default IP to match your robot -->
+  <xacro:arg name="robot_ip" default="192.168.1.1"/>
   <xacro:arg name="joint_limit_params" default=""/>
   <xacro:arg name="kinematics_params" default=""/>
   <xacro:arg name="physical_params" default=""/>

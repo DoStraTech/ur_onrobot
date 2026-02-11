@@ -10,7 +10,7 @@ def generate_launch_description():
             name="ur_onrobot",
             output="screen",
             parameters=[{
-                "ip": "192.168.1.158",     # change per robot
+                "ip": "192.168.178.5",     # CHANGE THIS: Set to your robot's IP address
                 "status_hz": 5.0,
                 "fg.default_speed": 50,
                 "vg.apply_both": True,
@@ -18,6 +18,6 @@ def generate_launch_description():
                 "action.timeout_s": 5.0,
                 "action.feedback_hz": 10.0,
             }],
-            namespace="test_gripper",  # change per robot
+            namespace="robot",  # CHANGE THIS: Set to your robot's namespace (e.g., rondor, rosa)
         )
     ])
