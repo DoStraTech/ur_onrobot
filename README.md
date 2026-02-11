@@ -88,17 +88,36 @@ The action server is at `~/gripper_command` (under the node's namespace):
 
 ```bash
 # Open gripper (FG/RG: position=width in mm, max_effort=force)
-ros2 action send_goal /robot/gripper/gripper_command \
+ros2 action send_goal /gripper_command \
   control_msgs/action/GripperCommand \
   "{command: {position: 55.0, max_effort: 30.0}}"
+```
 
+Example output:
+```
+Waiting for an action server to become available...
+Sending goal:
+     command:
+  position: 55.0
+  max_effort: 30.0
+
+Goal accepted with ID: 2633e5c9f62448af8d7f2bf32bb36679
+
+Result:
+    position: 54.60000228881836
+  effort: 30.0
+  stalled: false
+  reached_goal: true
+```
+
+```bash
 # Close gripper
-ros2 action send_goal /robot/gripper/gripper_command \
+ros2 action send_goal /gripper_command \
   control_msgs/action/GripperCommand \
   "{command: {position: 0.0, max_effort: 30.0}}"
 ```
 
-> Replace `/robot/gripper` with your actual namespace/node name (e.g., `/rondor/gripper`).
+> If using a namespace, prefix accordingly (e.g., `/rondor/gripper/gripper_command`).
 
 ### Preset Services (FG/RG only)
 
