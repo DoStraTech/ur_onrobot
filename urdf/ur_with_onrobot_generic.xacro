@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+  <!-- Generic UR + OnRobot URDF (works without binary patches) -->
+  <!-- Uses name="ur" by default → creates ur_manipulator planning group -->
+  <!-- When included by ur_with_onrobot.xacro, name is overridden by launch -->
+
+  <!-- Import standard UR xacro -->
+  <!-- Change default IP to match your robot -->
+  <xacro:arg name="robot_ip" default="192.168.1.1"/>
+  <xacro:arg name="joint_limit_params" default=""/>
+  <xacro:arg name="kinematics_params" default=""/>
+  <xacro:arg name="physical_params" default=""/>
+  <xacro:arg name="visual_params" default=""/>
+  <xacro:arg name="transmission_hw_interface" default=""/>
+  <xacro:arg name="safety_limits" default="false"/>
+  <xacro:arg name="safety_pos_margin" default="0.15"/>
+  <xacro:arg name="safety_k_position" default="20"/>
+  <xacro:arg name="name" default="ur"/>
+  <xacro:arg name="ur_type" default="ur10e"/>
+  <xacro:arg name="prefix" default=""/>
+  <xacro:arg name="use_fake_hardware" default="false"/>
+  <xacro:arg name="fake_sensor_commands" default="false"/>
+  <xacro:arg name="sim_gazebo" default="false"/>
+  <xacro:arg name="sim_ignition" default="false"/>
+  <xacro:arg name="headless_mode" default="false"/>
+  <xacro:arg name="robot_description_kinematics" default=""/>
+  <xacro:arg name="initial_positions_file" default="$(find ur_description)/config/initial_positions.yaml"/>
+  <xacro:arg name="script_filename" default=""/>
+  <xacro:arg name="output_recipe_filename" default=""/>
+  <xacro:arg name="input_recipe_filename" default=""/>
+  <xacro:arg name="reverse_ip" default="0.0.0.0"/>
+  <xacro:arg name="script_command_port" default="50004"/>
+  <xacro:arg name="reverse_port" default="50001"/>
+  <xacro:arg name="script_sender_port" default="50002"/>
+  <xacro:arg name="trajectory_port" default="50003"/>
+  <xacro:arg name="tf_prefix" default=""/>
+  <xacro:arg name="use_tool_communication" default="false"/>
+  <xacro:arg name="tool_voltage" default="0"/>
+  <xacro:arg name="tool_parity" default="0"/>
+  <xacro:arg name="tool_baud_rate" default="115200"/>
+  <xacro:arg name="tool_stop_bits" default="1"/>
+  <xacro:arg name="tool_rx_idle_chars" default="1.5"/>
+  <xacro:arg name="tool_tx_idle_chars" default="3.5"/>
+  <xacro:arg name="tool_device_name" default="/tmp/ttyUR"/>
+  <xacro:arg name="tool_tcp_port" default="54321"/>
+  <xacro:arg name="non_blocking_read" default="true"/>
+  <xacro:arg name="keep_alive_count" default="2"/>
+  
+  <!-- Gripper-specific arguments -->
+  <xacro:arg name="gripper_prefix" default="gripper_"/>
+  <xacro:arg name="gripper_finger_configuration" default="inwards"/>
+
+  <!-- Include UR robot macro from ur_description package -->
+  <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+
+  <!-- World link for robot attachment -->
+  <link name="world"/>
+
+  <!-- Convert args to properties for use in macro -->
+  <xacro:property name="initial_positions_file_prop" default="$(arg initial_positions_file)"/>
+
+  <!-- Instantiate UR robot -->
+  <xacro:ur_robot
+    name="$(arg name)"
+    tf_prefix="$(arg tf_prefix)"
+    parent="world"
+    joint_limits_parameters_file="$(arg joint_limit_params)"
+    kinematics_parameters_file="$(arg kinematics_params)"
+    physical_parameters_file="$(arg physical_params)"
+    visual_parameters_file="$(arg visual_params)"
+    transmission_hw_interface="$(arg transmission_hw_interface)"
+    safety_limits="$(arg safety_limits)"
+    safety_pos_margin="$(arg safety_pos_margin)"
+    safety_k_position="$(arg safety_k_position)"
+    use_fake_hardware="$(arg use_fake_hardware)"
+    fake_sensor_commands="$(arg fake_sensor_commands)"
+    sim_gazebo="$(arg sim_gazebo)"
+    sim_ignition="$(arg sim_ignition)"
+    headless_mode="$(arg headless_mode)"
+    initial_positions="${xacro.load_yaml(initial_positions_file_prop)}"
+    script_filename="$(arg script_filename)"
+    output_recipe_filename="$(arg output_recipe_filename)"
+    input_recipe_filename="$(arg input_recipe_filename)"
+    robot_ip="$(arg robot_ip)"
+    reverse_ip="$(arg reverse_ip)"
+    script_command_port="$(arg script_command_port)"
+    reverse_port="$(arg reverse_port)"
+    script_sender_port="$(arg script_sender_port)"
+    trajectory_port="$(arg trajectory_port)"
+    use_tool_communication="$(arg use_tool_communication)"
+    tool_voltage="$(arg tool_voltage)"
+    tool_parity="$(arg tool_parity)"
+    tool_baud_rate="$(arg tool_baud_rate)"
+    tool_stop_bits="$(arg tool_stop_bits)"
+    tool_rx_idle_chars="$(arg tool_rx_idle_chars)"
+    tool_tx_idle_chars="$(arg tool_tx_idle_chars)"
+    tool_device_name="$(arg tool_device_name)"
+    tool_tcp_port="$(arg tool_tcp_port)"
+    non_blocking_read="$(arg non_blocking_read)"
+    keep_alive_count="$(arg keep_alive_count)"
+  >
+    <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:ur_robot>
+
+  <!-- Include OnRobot gripper macro -->
+  <xacro:include filename="$(find ur_onrobot)/urdf/onrobot_2fg14.xacro"/>
+
+  <!-- Attach gripper to tool0 flange -->
+  <joint name="$(arg tf_prefix)tool0_gripper_joint" type="fixed">
+    <parent link="$(arg tf_prefix)tool0"/>
+    <child link="$(arg gripper_prefix)base_link"/>
+    <!-- Adjust origin if needed - this is the mounting transformation -->
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- add camera -->
+  <link name="camera_link">
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.015 0.015"/>
+      </geometry>
+      <material name="dark_silver">
+        <color rgba="0.55 0.55 0.55 1"/>
+      </material>
+    </visual>
+  </link>
+
+  <!-- Joint to attach camera to world (adjust parent/origin as needed) -->
+  <joint name="camera_joint" type="fixed">
+    <parent link="$(arg tf_prefix)tool0"/>
+    <child link="camera_link"/>
+    <origin xyz="0.0 -0.04 0.11" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Instantiate gripper (will create gripper_prefix + base_link, left_finger_link, right_finger_link) -->
+  <xacro:onrobot_2fg14_gripper 
+    prefix="$(arg gripper_prefix)" 
+    finger_configuration="$(arg gripper_finger_configuration)"
+  />
+
+</robot>

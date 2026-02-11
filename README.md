@@ -252,10 +252,30 @@ robot_description_content = Command([
   - `gripper_joint_state_publisher.py` — Width → joint state converter
   - `gripper_simulator.py` — Fake gripper for simulation
 - `urdf/` — Robot + gripper URDF/xacro descriptions
+  - `ur_with_onrobot.xacro` — Robot-specific version (requires binary patches, recommended)
+  - `ur_with_onrobot_generic.xacro` — Generic version (works with stock packages)
+  - `onrobot_2fg14.xacro` — Gripper macro
+- `srdf/` — Semantic robot description (collision exclusions)
+  - `ur_with_onrobot.srdf.xacro` — Robot-specific SRDF (ur5e_manipulator, ur10e_manipulator)
+  - `ur_with_onrobot_generic.srdf.xacro` — Generic SRDF (ur_manipulator)
 - `launch/` — Launch files
 - `meshes/` — STL files for visualization
-- `config/` — Controller configurations
-- `srdf/` — Semantic robot description (collision exclusions)
+- `config/` — Robot-specific controller configurations (ur5e, ur10e)
+
+### URDF/SRDF Variants Explained
+
+**Robot-Specific (Recommended):**
+- Uses proper robot names (ur5e, ur10e) matching the actual hardware
+- Creates correct MoveIt planning groups (ur5e_manipulator, ur10e_manipulator)
+- Eliminates "semantic description mismatch" warnings
+- **Requires:** Binary patches to `/opt/ros/humble/share/ur_moveit_config/`
+- **Apply patches:** Run the included `apply_binary_patches.sh` script
+
+**Generic (Stock Compatible):**
+- Always uses name="ur" regardless of robot type
+- Planning group is always "ur_manipulator"
+- Works without system modifications
+- **Use when:** Shared systems, CI/CD, or cannot modify /opt files
 
 ## Tested Hardware
 
