@@ -123,10 +123,23 @@ ros2 action send_goal /gripper_command \
 
 ```bash
 # Toggle between open and close
-ros2 service call /robot/gripper/preset/toggle std_srvs/srv/Trigger
+ros2 service call /gripper/preset/toggle std_srvs/srv/Trigger
+```
 
+Example — toggling twice:
+```
+requester: making request: std_srvs.srv.Trigger_Request()
+response:
+std_srvs.srv.Trigger_Response(success=True, message='Preset: open (width=55.0mm)')
+
+requester: making request: std_srvs.srv.Trigger_Request()
+response:
+std_srvs.srv.Trigger_Response(success=True, message='Preset: close (width=5.0mm)')
+```
+
+```bash
 # Explicit open (True) or close (False)
-ros2 service call /robot/gripper/preset/set_state std_srvs/srv/SetBool "{data: true}"
+ros2 service call /gripper/preset/set_state std_srvs/srv/SetBool "{data: true}"
 ```
 
 ### CLI Tool (No ROS Required)
