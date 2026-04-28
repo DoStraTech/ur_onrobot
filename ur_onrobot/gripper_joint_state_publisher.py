@@ -22,7 +22,7 @@ class GripperJointStatePublisher(Node):
         # Declare parameters
         self.declare_parameter("gripper_prefix", "")
         self.declare_parameter("publish_rate", 20.0)  # Hz
-        self.declare_parameter("width_topic", "/gripper/width")
+        self.declare_parameter("width_topic", "gripper/width")
         
         # Get parameters
         self.gripper_prefix = self.get_parameter("gripper_prefix").value
@@ -55,7 +55,7 @@ class GripperJointStatePublisher(Node):
         )
         self.joint_state_pub = self.create_publisher(
             JointState,
-            "/joint_states",
+            "joint_states",
             qos_profile
         )
 

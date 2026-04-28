@@ -62,7 +62,7 @@ class GripperSimulator(Node):
         
         # Joint state publisher with QoS matching joint_state_broadcaster
         qos_profile = QoSProfile(depth=10, durability=QoSDurabilityPolicy.VOLATILE, reliability=QoSReliabilityPolicy.RELIABLE)
-        self.joint_state_pub = self.create_publisher(JointState,"/joint_states",qos_profile)
+        self.joint_state_pub = self.create_publisher(JointState,"joint_states",qos_profile)
         
         # Action server for gripper commands
         self.action_server = ActionServer(
