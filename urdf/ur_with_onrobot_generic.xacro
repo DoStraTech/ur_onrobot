@@ -137,6 +137,12 @@
         <color rgba="0.55 0.55 0.55 1"/>
       </material>
     </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.05 0.015 0.015"/>
+      </geometry>
+    </collision>
   </link>
 
   <!-- Joint to attach camera to world (adjust parent/origin as needed) -->
