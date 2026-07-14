@@ -58,6 +58,8 @@
 
   <!-- Include UR robot macro from ur_description package -->
   <xacro:include filename="$(find ur_description)/urdf/ur_macro.xacro"/>
+  <!-- ros2_control is a separate macro in the Jazzy UR driver. -->
+  <xacro:include filename="/opt/ros/jazzy/share/ur_robot_driver/urdf/ur.ros2_control.xacro"/>
 
   <!-- World link for robot attachment -->
   <link name="world"/>
@@ -81,20 +83,26 @@
     kinematics_parameters_file="$(arg kinematics_params)"
     physical_parameters_file="$(arg physical_params)"
     visual_parameters_file="$(arg visual_params)"
-    transmission_hw_interface="$(arg transmission_hw_interface)"
     safety_limits="$(arg safety_limits)"
     safety_pos_margin="$(arg safety_pos_margin)"
     safety_k_position="$(arg safety_k_position)"
-    use_fake_hardware="$(arg use_fake_hardware)"
-    fake_sensor_commands="$(arg fake_sensor_commands)"
-    sim_gazebo="$(arg sim_gazebo)"
-    sim_ignition="$(arg sim_ignition)"
+  >
+  <origin xyz="0 0 0" rpy="0 0 0" />
+  </xacro:ur_robot>
+
+  <!-- Instantiate the UR ros2_control hardware interface. -->
+  <xacro:ur_ros2_control
+    name="$(arg name)"
+    tf_prefix="$(arg tf_prefix)"
+    kinematics_parameters_file="$(arg kinematics_params)"
+    use_mock_hardware="$(arg use_fake_hardware)"
+    mock_sensor_commands="$(arg fake_sensor_commands)"
     headless_mode="$(arg headless_mode)"
     initial_positions="${xacro.load_yaml(initial_positions_file_prop)}"
-    script_filename="$(arg script_filename)"
-    output_recipe_filename="$(arg output_recipe_filename)"
-    input_recipe_filename="$(arg input_recipe_filename)"
     robot_ip="$(arg robot_ip)"
+    script_filename="$(arg script_filename)"
+    input_recipe_filename="$(arg input_recipe_filename)"
+    output_recipe_filename="$(arg output_recipe_filename)"
     reverse_ip="$(arg reverse_ip)"
     script_command_port="$(arg script_command_port)"
     reverse_port="$(arg reverse_port)"
@@ -109,11 +117,7 @@
     tool_tx_idle_chars="$(arg tool_tx_idle_chars)"
     tool_device_name="$(arg tool_device_name)"
     tool_tcp_port="$(arg tool_tcp_port)"
-    non_blocking_read="$(arg non_blocking_read)"
-    keep_alive_count="$(arg keep_alive_count)"
-  >
-  <origin xyz="0 0 0" rpy="0 0 0" />
-  </xacro:ur_robot>
+  />
 
   <!-- Include OnRobot gripper macro -->
   <xacro:include filename="$(find ur_onrobot)/urdf/onrobot_2fg14.xacro"/>
