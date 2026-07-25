@@ -204,7 +204,7 @@ def main(args=None):
     node = GripperSimulator()
     rclpy.spin(node)
     node.destroy_node()
-    rclpy.shutdown()
+    rclpy.try_shutdown()
 
 
 if __name__ == "__main__":
