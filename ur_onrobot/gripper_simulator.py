@@ -202,9 +202,20 @@ class GripperSimulator(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = GripperSimulator()
-    rclpy.spin(node)
-    node.destroy_node()
-    rclpy.try_shutdown()
+    try:
+        rclpy.spin(node)
+    except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException, BaseException):
+        pass
+    finally:
+        try:
+            node.destroy_node()
+        except Exception:
+            pass
+        try:
+            if rclpy.ok():
+                rclpy.shutdown()
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":

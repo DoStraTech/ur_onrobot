@@ -295,10 +295,18 @@ def main():
         exec = MultiThreadedExecutor(num_threads=2)
         exec.add_node(node)
         exec.spin()
-    except KeyboardInterrupt: pass
+    except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException, BaseException):
+        pass
     finally:
-        node.destroy_node()
-        rclpy.try_shutdown()
+        try:
+            node.destroy_node()
+        except Exception:
+            pass
+        try:
+            if rclpy.ok():
+                rclpy.shutdown()
+        except Exception:
+            pass
 
 if __name__ == "__main__":
     main()
