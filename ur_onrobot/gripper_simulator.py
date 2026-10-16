@@ -35,12 +35,21 @@ class GripperSimulator(Node):
         self.declare_parameter("preset.open_width", 55.0)  # FG14 actual range: 5-115mm (inward config)
         self.declare_parameter("preset.close_width", 5.0)
         self.declare_parameter("preset.default_force", 30.0)
-        
+        # Simulated jaw travel speed [mm/s] and the bounded action
+        # deadline [s].  40.0 mm/s (~1.0 s per 40 mm stroke) keeps the
+        # simulated work visible on owner-timelines; the real driver's
+        # action contract is unchanged (result on physical reach).
+        # 2026-10-09 operator: "make the sim movement time a bit slower".
+        self.declare_parameter("sim.speed_mm_s", 40.0)
+        self.declare_parameter("sim.timeout_s", 10.0)
+
         # Get parameters
         self.gripper_prefix = self.get_parameter("gripper_prefix").value
         self.publish_rate = self.get_parameter("publish_rate").value
         self.open_width = self.get_parameter("preset.open_width").value
         self.close_width = self.get_parameter("preset.close_width").value
+        self.sim_speed_mm_s = self.get_parameter("sim.speed_mm_s").value
+        self.sim_timeout_s = self.get_parameter("sim.timeout_s").value
         
         # State variables
         self.current_width_mm = self.open_width  # Start open
@@ -93,8 +102,7 @@ class GripperSimulator(Node):
     def _update_simulation(self):
         """Update gripper position smoothly towards target."""
         if self.current_width_mm != self.target_width_mm:
-            # Simulate gripper speed (e.g., 100 mm/s)
-            speed = 100.0  # mm/s
+            speed = float(self.sim_speed_mm_s)  # mm/s (sim.speed_mm_s)
             dt = 0.02  # 50 Hz
             max_delta = speed * dt
             
@@ -146,23 +154,69 @@ class GripperSimulator(Node):
         self.joint_state_pub.publish(msg)
 
     def _execute_gripper_command(self, goal_handle):
-        """Execute gripper command action."""
+        """Execute gripper command action.
+
+        Honors the REAL OnRobot driver's action contract
+        (Onrobot_UR_ROS2_driver._execute_cb): the terminal result is
+        returned only once the jaws have PHYSICALLY reached the target
+        (busy cleared, same 1.0 mm tolerance), cancel is honored, and
+        the wait is bounded (sim.timeout_s -> abort, stalled=True,
+        reached_goal=False).
+
+        The old callback returned success immediately
+        (``reached_goal=True``) while the background motion was still
+        running — divergent from real hardware and invisible on
+        owner-timelines (gripper bars were ~40 ms handshakes).  2026-10-09
+        fix (operator: sim must behave like the real driver, and the
+        movement time must be visible in the E6 plot).
+        """
         goal = goal_handle.request
         # Clamp to hardware limits (5-115mm)
-        self.target_width_mm = max(5.0, min(115.0, goal.command.position))  # Position is width in mm
+        target = max(5.0, min(115.0, goal.command.position))  # Position is width in mm
+
+        self.get_logger().info(f"Gripper command received: {target:.1f} mm")
+
+        if abs(self.current_width_mm - target) <= 1.0:
+            # Already at the target: zero work, succeed immediately
+            # (otherwise is_busy would stay set and the loop would time out).
+            res = GripperCommand.Result()
+            res.position = self.current_width_mm
+            res.effort = 0.0
+            res.stalled = False
+            res.reached_goal = True
+            goal_handle.succeed()
+            return res
+
+        self.target_width_mm = target
         self.is_busy = True
-        
-        self.get_logger().info(f"Gripper command received: {self.target_width_mm:.1f} mm")
-        
-        # Immediately accept and return success - simulation runs in background
-        # The _update_simulation timer handles actual movement
-        goal_handle.succeed()
-        result = GripperCommand.Result()
-        result.position = self.target_width_mm / 1000.0
-        result.effort = 0.0
-        result.stalled = False
-        result.reached_goal = True
-        return result
+
+        start = time.monotonic()
+        while rclpy.ok():
+            if goal_handle.is_cancel_requested:
+                goal_handle.canceled()
+                return GripperCommand.Result()
+
+            cur = self.current_width_mm
+            reached = abs(cur - target) <= 1.0  # same tolerance as the real driver
+            if not self.is_busy and reached:
+                res = GripperCommand.Result()
+                res.position = cur  # actual width in mm, like the real driver
+                res.effort = 0.0
+                res.stalled = False
+                res.reached_goal = True
+                goal_handle.succeed()
+                return res
+
+            if time.monotonic() - start > self.sim_timeout_s:
+                res = GripperCommand.Result()
+                res.position = cur
+                res.effort = 0.0
+                res.stalled = True
+                res.reached_goal = False
+                goal_handle.abort()
+                return res
+
+            time.sleep(0.02)
 
     def _preset_toggle_cb(self, request, response):
         """Toggle between open and close presets."""
@@ -202,20 +256,17 @@ class GripperSimulator(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = GripperSimulator()
-    try:
-        rclpy.spin(node)
-    except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException, BaseException):
-        pass
-    finally:
-        try:
-            node.destroy_node()
-        except Exception:
-            pass
-        try:
-            if rclpy.ok():
-                rclpy.shutdown()
-        except Exception:
-            pass
+    # Multi-threaded executor: the action execute callback blocks while
+    # polling for physical reach (like the real driver polls the hardware
+    # thread), so the 50 Hz jaw-movement timer must run in a separate
+    # thread.  Single-threaded rclpy.spin() would starve the timer and
+    # every real stroke would time out (2026-10-09 fix).
+    from rclpy.executors import MultiThreadedExecutor
+    ext = MultiThreadedExecutor()
+    ext.add_node(node)
+    ext.spin()
+    node.destroy_node()
+    rclpy.shutdown()
 
 
 if __name__ == "__main__":
