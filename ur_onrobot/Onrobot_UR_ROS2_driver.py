@@ -151,6 +151,11 @@ class GripperNode(Node):
             else:
                 force = float(goal.command.max_effort) if goal.command.max_effort == goal.command.max_effort else 30.0
                 speed = self.speed_default if fam == "FG" else 50
+                w = self.g.get_width()
+                if w == w and abs(float(w) - float(goal.command.position)) <= 1.0:
+                    res = GripperCommand.Result(position=float(w), effort=float("nan"), stalled=False, reached_goal=True)
+                    goal_handle.succeed()
+                    return res
                 self.g.set_width_force(float(goal.command.position), force, int(speed))
         except Exception as e:
             self.get_logger().error(f"command error: {e}")
@@ -159,6 +164,7 @@ class GripperNode(Node):
             goal_handle.abort()
             return res
 
+        saw_busy = False
         last_fb = 0.0
         while rclpy.ok():
             if goal_handle.is_cancel_requested:
@@ -167,6 +173,7 @@ class GripperNode(Node):
 
             now = time.time()
             busy = self.g.is_busy()
+            saw_busy = saw_busy or busy
             obj  = self.g.object_detected()
 
             if fam == "VG":
@@ -193,7 +200,7 @@ class GripperNode(Node):
                 return res
 
             if (now - start) > self.timeout:
-                res = GripperCommand.Result(position=fb.position, effort=fb.effort, stalled=True, reached_goal=False)
+                res = GripperCommand.Result(position=fb.position, effort=fb.effort, stalled=bool(saw_busy), reached_goal=False)
                 goal_handle.abort()
                 return res
 
