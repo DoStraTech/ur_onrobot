@@ -271,12 +271,7 @@ def main(args=None):
     finally:
         try:
             node.destroy_node()
-        except Exception:
-            pass
-        try:
-            if rclpy.ok():
-                rclpy.shutdown()
-        except Exception:
+        except BaseException:
             pass
 
 
