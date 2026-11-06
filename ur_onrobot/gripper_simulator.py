@@ -264,9 +264,20 @@ def main(args=None):
     from rclpy.executors import MultiThreadedExecutor
     ext = MultiThreadedExecutor()
     ext.add_node(node)
-    ext.spin()
-    node.destroy_node()
-    rclpy.shutdown()
+    try:
+        ext.spin()
+    except (KeyboardInterrupt, rclpy.executors.ExternalShutdownException, BaseException):
+        pass
+    finally:
+        try:
+            node.destroy_node()
+        except Exception:
+            pass
+        try:
+            if rclpy.ok():
+                rclpy.shutdown()
+        except Exception:
+            pass
 
 
 if __name__ == "__main__":
